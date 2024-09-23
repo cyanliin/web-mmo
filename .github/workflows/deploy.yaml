@@ -49,7 +49,7 @@ jobs:
       - name: Deploy to Client Repository
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.CLIENT_REPO_TOKEN }}  # 使用您生成的 token
+          github_token: ${{ secrets.CLIENT_REPO_TOKEN2 }}  # 使用您生成的 token
           publish_dir: ./client/dist  # 指定要發布的資料夾
           publish_branch: gh-pages  # 發布的分支名稱
           external_repository: cyanliin/web-mmo-client  # 新存儲庫的名稱
