@@ -1,0 +1,31 @@
+name: Deploy to Vultr
+
+on:
+  push:
+    branches:
+      - main  # 當推送到 main 分支時觸發
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install pnpm
+        run: |
+          npm install -g pnpm
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy code to Vultr
+        run: |
+          ssh user@vultr-server-ip '
+            cd ~ &&
+            git pull &&
+            pnpm install &&
+            pm2 restart server || pm2 start ~/web-mmo/server/server.js --name server'
