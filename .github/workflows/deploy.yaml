@@ -31,6 +31,7 @@ jobs:
             fi &&
             cd ~/web-mmo &&
             git pull &&
+            cd server &&
             npm install &&
             npm install -g pm2 &&  # 安裝 pm2
             pm2 restart server || pm2 start ~/web-mmo/server/server.js --name server'
