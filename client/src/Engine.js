@@ -16,7 +16,7 @@ class Engine {
     this.enableDebugHud = attrs?.enableDebugHud || true;
     this.enableDebugDraw = attrs?.enableDebugDraw || true;
     this.scaleFactor = attrs?.scaleFactor || 1;
-    this.host = attrs?.host || 'http://167.179.80.239:3000';
+    this.host = attrs?.host || 'https://167.179.80.239.vultrusercontent.com:3000';
 
     // FPS 計算相關屬性
     this.lastFrameTime = 0;
