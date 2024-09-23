@@ -35,3 +35,16 @@ jobs:
             npm install &&
             npm install -g pm2 &&  # 安裝 pm2
             pm2 restart server || pm2 start ~/web-mmo/server/server.js --name server'
+
+      - name: Build client
+        run: |
+          cd ~/web-mmo/client
+          npm run build  # 生成靜態文件
+
+      - name: Deploy to Client Repository
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.CLIENT_REPO_TOKEN }}  # 使用您生成的 token
+          publish_dir: ~/web-mmo/client/dist  # 指定要發布的資料夾
+          publish_branch: main  # 發布的分支名稱
+          repository: cyanliin/web-mmo-client  # 新存儲庫的名稱
