@@ -26,25 +26,25 @@ jobs:
       - name: Deploy code to Vultr
         run: |
           ssh -o StrictHostKeyChecking=no -v root@167.179.80.239 '
-            if [ ! -d ~/web-mmo/.git ]; then
-              git clone git@github.com:cyanliin/web-mmo.git ~/web-mmo;  
+            if [ ! -d /web-mmo/.git ]; then
+              git clone git@github.com:cyanliin/web-mmo.git /web-mmo;  
             fi &&
-            cd ~/web-mmo &&
+            cd /web-mmo &&
             git pull &&
             cd server &&
             npm install &&
             npm install -g pm2 &&  # 安裝 pm2
-            pm2 restart server || pm2 start ~/web-mmo/server/server.js --name server'
+            pm2 restart server || pm2 start /web-mmo/server/server.js --name server'
 
       - name: Build client
         run: |
-          cd ~/web-mmo/client
+          cd /web-mmo/client
           npm run build  # 生成靜態文件
 
       - name: Deploy to Client Repository
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.CLIENT_REPO_TOKEN }}  # 使用您生成的 token
-          publish_dir: ~/web-mmo/client/dist  # 指定要發布的資料夾
+          publish_dir: /web-mmo/client/dist  # 指定要發布的資料夾
           publish_branch: main  # 發布的分支名稱
           repository: cyanliin/web-mmo-client  # 新存儲庫的名稱
