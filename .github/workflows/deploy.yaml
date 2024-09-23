@@ -30,7 +30,7 @@ jobs:
       - name: Deploy code to Vultr
         run: |
           ssh -v root@167.179.80.239 '
-            cd ~ &&
+            cd / &&
             git pull &&
             npm install &&  # 使用 npm 安裝依賴
-            pm2 restart server || pm2 start ~/web-mmo/server/server.js --name server'
+            pm2 restart server || pm2 start /web-mmo/server/server.js --name server'
