@@ -27,7 +27,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -v root@167.179.80.239 '
             if [ ! -d ~/web-mmo/.git ]; then
-              git clone https://github.com/cyanliin/web-mmo.git ~/web-mmo;  
+              git clone git@github.com:cyanliin/web-mmo.git ~/web-mmo;  
             fi &&
             cd ~/web-mmo &&
             git pull &&
