@@ -16,11 +16,11 @@ jobs:
       - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'  # 使用 Node.js 19 版本
+          node-version: '22.x'  # 使用 Node.js 22 版本
 
-      - name: Install pnpm
+      - name: Install npm dependencies
         run: |
-          npm install -g pnpm
+          npm install  # 使用 npm 安裝依賴
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.7.0
@@ -29,8 +29,8 @@ jobs:
 
       - name: Deploy code to Vultr
         run: |
-          ssh root@167.179.80.239 '
+          ssh -v root@167.179.80.239 '
             cd ~ &&
             git pull &&
-            pnpm install &&
+            npm install &&  # 使用 npm 安裝依賴
             pm2 restart server || pm2 start ~/web-mmo/server/server.js --name server'
