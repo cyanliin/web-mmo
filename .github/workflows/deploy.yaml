@@ -24,7 +24,7 @@ jobs:
 
       - name: Deploy code to Vultr
         run: |
-          ssh user@vultr-server-ip '
+          ssh root@167.179.80.239 '
             cd ~ &&
             git pull &&
             pnpm install &&
