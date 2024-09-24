@@ -1,6 +1,6 @@
 import Vector2D from './Vector2D';
 import { uid } from 'uid';
-import config from './config';
+import config from '../config';
 
 class GameObject {
   constructor(data) {

@@ -21,6 +21,17 @@ const io = new Server(server, {
 
 const playerManager = new ServerPlayerManager();
 
+let messages = [];  // 儲存最近5分鐘的訊息
+
+// 清理超過5分鐘的訊息
+const cleanOldMessages = () => {
+  const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+  messages = messages.filter(msg => msg.timestamp > fiveMinutesAgo);
+};
+
+// 定期每30秒清理一次
+setInterval(cleanOldMessages, 30 * 1000);
+
 io.on('connection', (socket) => {
   console.log('A player connected');
 
@@ -33,6 +44,9 @@ io.on('connection', (socket) => {
 
       // 向新玩家發送所有現有玩家的資訊
       socket.emit('allPlayers', playerManager.getAllPlayersData());
+
+      // 傳送現有的訊息給新連接的用戶
+      socket.emit('previousMessages', messages);
 
       // 廣播新玩家加入給其他玩家
       socket.broadcast.emit('playerJoined', player);
@@ -63,6 +77,19 @@ io.on('connection', (socket) => {
         health: updatedPlayer.health
       });
     }
+  });
+
+  // 新聊天訊息
+  socket.on('newChatMessage', (data) => {
+    const message = {
+      from: data.from,
+      text: data.text,
+      timestamp: Date.now(),
+    };
+    
+    messages.push(message);  // 保存新訊息
+    
+    io.emit('newMessage', message);  // 廣播訊息給所有用戶
   });
 
   // 玩家離開遊戲
@@ -112,11 +139,13 @@ function printServerInfo() {
 
 // 列印玩家表格
 function printPlayers() {
-  console.clear();
+  // console.clear();
   printServerInfo();
 
   const players = playerManager.getAllPlayersData();
   console.table(players);
+
+  console.table(messages);
 }
 
 server.listen(port, () => {

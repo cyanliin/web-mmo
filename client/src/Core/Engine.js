@@ -1,23 +1,25 @@
-import './styles/engine.scss'
+import '../styles/engine.scss';
 
-import config from './config';
+import config from '../config';
+import Vector2D from './Vector2D';
 import NetworkManager from './NetworkManager';
 import PlayerManager from './PlayerManager';
 import InputManager from './InputManager';
+import SceneManager from './SceneManager';
+import ChatPanel from './ChatPanel';
 import Joystick from './Joystick';
-import Player from './Player';
 import LocalPlayer from './LocalPlayer';
-import Vector2D from './Vector2D';
 
 class Engine {
   constructor(attrs) {
 
     this.width = attrs?.width || 500;
     this.height = attrs?.height || 500;
-    this.enableDebugHud = attrs?.enableDebugHud || true;
-    this.enableDebugDraw = attrs?.enableDebugDraw || true;
     this.scaleFactor = attrs?.scaleFactor || 1;
     this.host = attrs?.host || config.SERVER_HOST;
+    this.eventListeners = {};
+    this.enableDebugHud = attrs.enableDebugHud !== undefined ? attrs.enableDebugHud : true;
+    this.enableDebugDraw = attrs.enableDebugDraw !== undefined ? attrs.enableDebugDraw : true;
 
     // FPS 計算相關屬性
     this.lastFrameTime = 0;
@@ -47,6 +49,9 @@ class Engine {
     // 網路管理
     this.networkManager = new NetworkManager(this, this.host);
 
+    // 場景管理
+    this.sceneManager = new SceneManager(this);
+
     // 虛擬搖桿
     this.joystick = new Joystick(this.displayCav, this.bufferCtx);
 
@@ -54,13 +59,46 @@ class Engine {
     this.inputManager = new InputManager(this);
     this.inputManager.setJoystick(this.joystick);
 
+    // 聊天面板
+    this.chatPanel = new ChatPanel(this);
+    this.appendDom(this.chatPanel.getDom());
+
     // 建立本地玩家
     this.localPlayer = new LocalPlayer({
       id: 'local',
-      name: 'Player1', 
+      name: this.generateRandomPlayerName(), 
       position: new Vector2D(100, 100),
     }, this.networkManager);
     this.playerManager.addPlayer(this.localPlayer);
+  }
+
+  addEventListener(event, callback) {
+    this.eventListeners[event] = callback;
+  }
+
+  removeEventListener(event) {
+    delete this.eventListeners[event];
+  }
+
+  callEvent(event, param) {
+    if (this.eventListeners[event]) {
+      this.eventListeners[event](param);
+    }
+  }
+
+  generateRandomPlayerName() {
+    const adjectives = ['Brave', 'Mighty', 'Clever', 'Swift', 'Fierce', 'Silent', 'Noble', 'Bold', 'Lucky', 'Daring'];
+    const nouns = ['Warrior', 'Mage', 'Hunter', 'Rogue', 'Paladin', 'Druid', 'Knight', 'Ranger', 'Sorcerer', 'Berserker'];
+  
+    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+    const randomNumber = Math.floor(Math.random() * 100);  // 生成0到99之間的隨機數字
+  
+    return `${randomAdjective}${randomNoun}${randomNumber}`;
+  }
+
+  appendDom(dom) {
+    this.wrapperDom.appendChild(dom);
   }
 
   setSize(width, height) {
@@ -81,6 +119,7 @@ class Engine {
 
   onNetworkConnected() {
     console.log('Successfully connected to the server');
+    this.callEvent('networkConnected');
     // 可以在此處執行額外的初始化，例如同步現有玩家的數據
 
     // 玩家登入主機
@@ -90,21 +129,25 @@ class Engine {
 
   onNetworkDisconnected(reason) {
     console.log('Disconnected from server:', reason);
+    this.callEvent('networkDisconnected');
     // 處理斷開連接的邏輯
   }
 
   onNetworkReconnecting(attempt) {
     console.log(`Reconnecting attempt ${attempt}`);
+    this.callEvent('networkReconnecting');
     // 可能會在遊戲界面上顯示 "重連中..." 之類的提示
   }
 
   onNetworkFailed() {
     console.log('Failed to reconnect');
+    this.callEvent('networkFailed');
     // 處理無法連接的情況
   }
 
   onNetworkError(error) {
     console.error('Network error:', error);
+    this.callEvent('networkError');
   }
 
   initDoms(parentDom) {
@@ -152,6 +195,16 @@ class Engine {
     }
   }
 
+  // 登錄場景
+  addScene(sceneId, scene) {
+    this.sceneManager.addScene(sceneId, scene);
+  }
+
+  // 進入場景
+  enterScene(sceneId) {
+    this.sceneManager.enterScene(sceneId);
+  }
+
   // 遊戲主循環
   gameLoop(currentTime) {
     const deltaTime = (currentTime - this.lastFrameTime) / 1000; // 以秒為單位的 deltaTime
@@ -159,6 +212,7 @@ class Engine {
 
     this.updateFps(currentTime);
     this.update(deltaTime);
+    
     this.render();
     requestAnimationFrame((time) => this.gameLoop(time));
   }
@@ -166,36 +220,27 @@ class Engine {
   // 更新遊戲狀態
   update(deltaTime) {
     // 在這裡更新遊戲狀態，例如玩家移動、碰撞檢測等
-    if (this.localPlayer) {
-      this.localPlayer.update(this.inputManager, deltaTime);
+    if (this.sceneManager.activeScene) {
+      this.sceneManager.activeScene.update(deltaTime);
     }
   }
 
   // 繪製遊戲畫面
   render() {
-    // this.bufferCtx.clearRect(0, 0, this.bufferCav.width, this.bufferCav.height);
-    this.bufferCtx.fillStyle = '#222222';
-    this.bufferCtx.fillRect(0, 0, this.displayCav.width, this.displayCav.height);
-    this.renderPlayers();
-    this.joystick.draw();
-    this.renderDebugHud();
-    // 渲染其他遊戲元素...
+
+    // 場景繪製
+    if (this.sceneManager.activeScene) {
+      this.sceneManager.activeScene.render(this.bufferCtx);
+    }
+
+    // 繪製 Debug HUD
+    if (this.enableDebugHud) {
+      this.renderDebugHud();
+    }
 
     // 將緩衝畫布的內容繪製到顯示畫布上
     this.displayCtx.clearRect(0, 0, this.displayCav.width, this.displayCav.height);
     this.displayCtx.drawImage(this.bufferCav, 0, 0);
-  }
-
-  // 繪製所有玩家
-  renderPlayers() {
-    this.playerManager.players.forEach((player) => {
-      // 在這裡實現玩家的渲染邏輯
-      player.draw(this.bufferCtx);
-
-      if (this.enableDebugDraw) {
-        player.debugDraw(this.bufferCtx);
-      }
-    });
   }
 
   // 繪製 Debug HUD
@@ -212,6 +257,11 @@ class Engine {
     contents.push(`Resolution: ${this.width} x ${this.height} (x${this.scaleFactor})`);
     contents.push(`FPS: ${this.fps}`); 
     contents.push(`Host: ${this.host}`); 
+    if (this.networkManager.isConnected) {
+      contents.push('Network: Connected'); 
+    } else {
+      contents.push('Network: Disconnect'); 
+    }
     if (this.localPlayer) {
       contents.push(`Player ID: ${this.localPlayer.id}`); 
       contents.push(`Position: (${Math.round(this.localPlayer.position.x)}, ${Math.round(this.localPlayer.position.y)})`); 

@@ -94,7 +94,7 @@ class Joystick {
   }
 
   // 繪製虛擬搖桿
-  draw() {
+  render() {
     if (!this.active) return;
 
     const ctx = this.ctx;

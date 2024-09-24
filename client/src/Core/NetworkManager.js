@@ -103,6 +103,19 @@ class NetworkManager {
     this.socket.on('playerMoved', ({playerId, x, y}) => {
       this.engine.playerManager.updatePlayerPosition(playerId, x, y);
     });
+
+    // 歷史訊息
+    this.socket.on('previousMessages', (messages) => {
+      messages.forEach(({from, text, timestamp}) => {
+        this.engine.chatPanel.addMessage(from, text, timestamp);
+      });
+    });
+
+    // 新訊息
+    this.socket.on('newMessage', ({from, text, timestamp}) => {
+      console.log('newMessage', text);
+      this.engine.chatPanel.addMessage(from, text, timestamp);
+    });
   }
 
   handleConnectionError() {
@@ -139,6 +152,12 @@ class NetworkManager {
   sendPlayerHealthChange(newHealth) {
     if (this.isConnected) {
       this.socket.emit('playerHealthChange', newHealth);
+    }
+  }
+
+  sendChatMessage(from, text) {
+    if (this.isConnected) {
+      this.socket.emit('newChatMessage', {from, text});
     }
   }
 
