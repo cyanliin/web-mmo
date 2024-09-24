@@ -32,6 +32,9 @@
 
   .wme-chatpanel-history {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
     width: 100%;
     flex-grow: 1;
     overflow-y: auto;
