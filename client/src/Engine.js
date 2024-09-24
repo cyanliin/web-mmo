@@ -1,5 +1,6 @@
 import './styles/engine.scss'
 
+import config from './config';
 import NetworkManager from './NetworkManager';
 import PlayerManager from './PlayerManager';
 import InputManager from './InputManager';
@@ -16,7 +17,7 @@ class Engine {
     this.enableDebugHud = attrs?.enableDebugHud || true;
     this.enableDebugDraw = attrs?.enableDebugDraw || true;
     this.scaleFactor = attrs?.scaleFactor || 1;
-    this.host = attrs?.host || 'http://167.179.80.239:3000';
+    this.host = attrs?.host || config.SERVER_HOST;
 
     // FPS 計算相關屬性
     this.lastFrameTime = 0;

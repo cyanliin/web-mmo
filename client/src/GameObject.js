@@ -1,6 +1,6 @@
 import Vector2D from './Vector2D';
 import { uid } from 'uid';
-import { debugDrawConfig } from './config';
+import config from './config';
 
 class GameObject {
   constructor(data) {
@@ -24,17 +24,17 @@ class GameObject {
     ctx.translate(this.position.x, this.position.y);
 
     // Pivot Point
-    ctx.strokeStyle = debugDrawConfig.piviotColor;
+    ctx.strokeStyle = config.DEBUG_DRAW.PIVIOT_COLOR;
     ctx.strokeWidth = 1;
     
     ctx.beginPath();
-    ctx.moveTo(- debugDrawConfig.piviotSize / 2, 0);
-    ctx.lineTo(debugDrawConfig.piviotSize / 2, 0);
+    ctx.moveTo(- config.DEBUG_DRAW.PIVIOT_SIZE / 2, 0);
+    ctx.lineTo(config.DEBUG_DRAW.PIVIOT_SIZE / 2, 0);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(0, - debugDrawConfig.piviotSize / 2);
-    ctx.lineTo(0, + debugDrawConfig.piviotSize / 2);
+    ctx.moveTo(0, - config.DEBUG_DRAW.PIVIOT_SIZE / 2);
+    ctx.lineTo(0, + config.DEBUG_DRAW.PIVIOT_SIZE / 2);
     ctx.stroke();
 
     ctx.restore();

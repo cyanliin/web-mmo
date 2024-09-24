@@ -35,6 +35,5 @@ jobs:
             npm install &&
             npm install -g pm2 &&  # 安裝 pm2
             pm2 restart server || pm2 start /web-mmo/server/server.js --name server'
-            pm2 restart client || pm2 start npm --name client -- run dev --cwd ~/web-mmo/client'
 
       
