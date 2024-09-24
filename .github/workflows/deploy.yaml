@@ -35,20 +35,6 @@ jobs:
             npm install &&
             npm install -g pm2 &&  # 安裝 pm2
             pm2 restart server || pm2 start /web-mmo/server/server.js --name server'
+            pm2 restart client || pm2 start npm --name client -- run dev --cwd ~/web-mmo/client'
 
-      - name: Install dependencies
-        run: |
-          cd client
-          npm install  # 安裝所有依賴
-
-      - name: Build client
-        run: |
-          cd client
-          npm run build  # 生成靜態文件
-
-      - name: Deploy to Client Repository
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.CLIENT_REPO_TOKEN }}  # 使用您生成的 token
-          publish_dir: ./client/dist  # 指定要發布的資料夾
-          publish_branch: gh-pages  # 發布的分支名稱
+      
