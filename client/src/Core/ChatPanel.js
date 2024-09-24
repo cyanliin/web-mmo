@@ -17,7 +17,7 @@ class ChatPanel {
     this.inputDom = document.createElement('input');
     this.inputDom.className = 'wme-chatpanel-textarea';
     this.inputDom.setAttribute('type', 'text');
-    this.inputDom.addEventListener('keydown', (event) => { this.onInputKeydown(event) });
+    this.inputDom.addEventListener('keypress', (event) => { this.onInputKeydown(event) });
     this.wrapperDom.appendChild(this.inputDom);
 
     this.historyDom = document.createElement('div');
